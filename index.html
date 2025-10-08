@@ -1,1 +1,912 @@
 <!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citologia: Aventura Celular</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #e0e0e0;
+        }
+
+        .game-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .game-area {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .info-panel {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .cell-canvas {
+            width: 100%;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .organelle {
+            position: absolute;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px black;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .organelle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+        }
+
+        .nucleus {
+            background: radial-gradient(circle, #ff416c, #ff4b2b);
+            width: 120px;
+            height: 120px;
+        }
+
+        .mitochondria {
+            background: radial-gradient(circle, #7b4397, #dc2430);
+            width: 80px;
+            height: 40px;
+            border-radius: 40px/20px;
+        }
+
+        .ribosome {
+            background: radial-gradient(circle, #00c9ff, #92fe9d);
+            width: 30px;
+            height: 30px;
+        }
+
+        .golgi {
+            background: radial-gradient(circle, #f46b45, #eea849);
+            width: 100px;
+            height: 60px;
+            border-radius: 10px;
+        }
+
+        .er {
+            background: radial-gradient(circle, #56ab2f, #a8e063);
+            width: 90px;
+            height: 90px;
+            border-radius: 10px;
+        }
+
+        .lysosome {
+            background: radial-gradient(circle, #8e2de2, #4a00e0);
+            width: 40px;
+            height: 40px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        button {
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .info-content {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            height: 200px;
+            overflow-y: auto;
+        }
+
+        .quiz-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .quiz-question {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .quiz-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .quiz-option {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .quiz-option:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(to right, #00c9ff, #92fe9d);
+            width: 0%;
+            transition: width 0.5s;
+        }
+
+        .organelle-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .organelle-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .organelle-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .organelle-item.discovered {
+            background: rgba(0, 200, 0, 0.3);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal h2 {
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        .modal p {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .close-modal {
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff7e5f;
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .quiz-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Citologia: Aventura Celular</h1>
+            <p class="subtitle">Explore o fascinante mundo da célula e descubra seus segredos!</p>
+        </header>
+
+        <div class="game-container">
+            <div class="game-area">
+                <div class="cell-canvas" id="cellCanvas">
+                    <!-- Organelas serão adicionadas dinamicamente via JavaScript -->
+                </div>
+                <div class="controls">
+                    <button id="resetBtn">Reiniciar Célula</button>
+                    <button id="hintBtn">Dica</button>
+                    <button id="quizBtn">Questionário</button>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress" id="progressBar"></div>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <h2>Informações da Organela</h2>
+                <div class="info-content" id="infoContent">
+                    <p>Clique em uma organela para aprender sobre ela!</p>
+                </div>
+                
+                <h2>Organelas Descobertas</h2>
+                <div class="organelle-list" id="organelleList">
+                    <!-- Itens serão adicionados dinamicamente -->
+                </div>
+                
+                <div class="game-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="discoveredCount">0</div>
+                        <div class="stat-label">Descobertas</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="quizScore">0</div>
+                        <div class="stat-label">Pontuação</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="knowledgeLevel">0%</div>
+                        <div class="stat-label">Conhecimento</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="quiz-container" id="quizContainer" style="display: none;">
+            <h2>Questionário de Citologia</h2>
+            <div class="quiz-question" id="quizQuestion">
+                <!-- Pergunta será inserida aqui -->
+            </div>
+            <div class="quiz-options" id="quizOptions">
+                <!-- Opções serão inseridas aqui -->
+            </div>
+            <div class="score-board">
+                <div>Pergunta: <span id="currentQuestion">1</span>/<span id="totalQuestions">10</span></div>
+                <div>Acertos: <span id="correctAnswers">0</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Vitória -->
+    <div class="modal" id="victoryModal">
+        <div class="modal-content">
+            <h2>Parabéns!</h2>
+            <p>Você completou a exploração da célula e demonstrou grande conhecimento em citologia!</p>
+            <p>Sua pontuação final: <span id="finalScore">0</span></p>
+            <button class="close-modal" id="closeVictoryModal">Continuar Explorando</button>
+        </div>
+    </div>
+
+    <!-- Modal de Organela -->
+    <div class="modal" id="organelleModal">
+        <div class="modal-content">
+            <h2 id="organelleModalTitle">Título</h2>
+            <p id="organelleModalDescription">Descrição</p>
+            <button class="close-modal" id="closeOrganelleModal">Fechar</button>
+        </div>
+    </div>
+
+    <script>
+        // Dados das organelas
+        const organellesData = [
+            {
+                id: 'nucleus',
+                name: 'Núcleo',
+                description: 'O núcleo é a estrutura mais proeminente da célula e atua como seu centro de controle. Ele contém o DNA da célula, que carrega toda a informação genética necessária para a síntese de proteínas e para a divisão celular. O núcleo é delimitado por um envelope nuclear, uma membrana dupla perfurada por poros que permitem a comunicação com o citoplasma.',
+                color: '#ff416c',
+                size: 120,
+                facts: [
+                    'Contém o material genético (DNA)',
+                    'Controla todas as atividades celulares',
+                    'É delimitado pelo envelope nuclear',
+                    'Possui nucléolo, responsável pela produção de ribossomos'
+                ]
+            },
+            {
+                id: 'mitochondria',
+                name: 'Mitocôndria',
+                description: 'As mitocôndrias são organelas conhecidas como as "usinas de energia" da célula. Elas são responsáveis pela produção de ATP (adenosina trifosfato) através do processo de respiração celular. As mitocôndrias possuem seu próprio DNA e podem se autorreplicar, o que sustenta a teoria endossimbiótica que sugere que elas evoluíram de bactérias primitivas.',
+                color: '#7b4397',
+                size: 80,
+                facts: [
+                    'Produz energia (ATP) para a célula',
+                    'Possui DNA próprio',
+                    'Realiza a respiração celular',
+                    'Pode se autorreplicar'
+                ]
+            },
+            {
+                id: 'ribosome',
+                name: 'Ribossomo',
+                description: 'Os ribossomos são estruturas pequenas e densas responsáveis pela síntese de proteínas. Eles podem ser encontrados livres no citoplasma ou associados ao retículo endoplasmático rugoso. Os ribossomos leem o RNA mensageiro (mRNA) e utilizam essa informação para construir cadeias de aminoácidos que se dobram em proteínas funcionais.',
+                color: '#00c9ff',
+                size: 30,
+                facts: [
+                    'Sintetiza proteínas',
+                    'Pode ser livre ou associado ao RE',
+                    'É composto por RNA e proteínas',
+                    'Existe em procariotos e eucariotos'
+                ]
+            },
+            {
+                id: 'golgi',
+                name: 'Complexo de Golgi',
+                description: 'O complexo de Golgi é uma organela formada por uma série de sacos membranosos achatados e empilhados. Ele atua como um centro de processamento, modificação e distribuição de proteínas e lipídios sintetizados no retículo endoplasmático. As vesículas que saem do Golgi transportam essas moléculas para seus destinos finais, dentro ou fora da célula.',
+                color: '#f46b45',
+                size: 100,
+                facts: [
+                    'Modifica, armazena e distribui proteínas',
+                    'Forma lisossomos e vesículas secretoras',
+                    'É composto por dictiossomos (pilhas de cisternas)',
+                    'Adiciona carboidratos a proteínas (glicosilação)'
+                ]
+            },
+            {
+                id: 'er',
+                name: 'Retículo Endoplasmático',
+                description: 'O retículo endoplasmático (RE) é uma extensa rede de membranas que se estende por todo o citoplasma. Existem dois tipos: o RE rugoso, que tem ribossomos aderidos à sua superfície e está envolvido na síntese de proteínas; e o RE liso, que não possui ribossomos e está envolvido na síntese de lipídios, detoxificação de substâncias e armazenamento de íons de cálcio.',
+                color: '#56ab2f',
+                size: 90,
+                facts: [
+                    'Rugoso: síntese de proteínas',
+                    'Liso: síntese de lipídios e detoxificação',
+                    'É uma rede de túbulos e cisternas',
+                    'Comunica-se com o envelope nuclear'
+                ]
+            },
+            {
+                id: 'lysosome',
+                name: 'Lisossomo',
+                description: 'Os lisossomos são vesículas membranosas que contêm enzimas digestivas. Eles atuam como o "sistema digestivo" da célula, quebrando macromoléculas, organelas desgastadas e partículas capturadas do exterior. As enzimas lisossômicas funcionam melhor em pH ácido, que é mantido pela bomba de prótons na membrana do lisossomo.',
+                color: '#8e2de2',
+                size: 40,
+                facts: [
+                    'Contém enzimas digestivas',
+                    'Realiza a digestão intracelular',
+                    'Participa da autofagia (reciclagem de componentes celulares)',
+                    'Tem pH ácido em seu interior'
+                ]
+            },
+            {
+                id: 'centriole',
+                name: 'Centríolo',
+                description: 'Os centríolos são estruturas cilíndricas formadas por microtúbulos. Eles estão envolvidos na organização do fuso mitótico durante a divisão celular, garantindo a correta separação dos cromossomos. Nas células que possuem flagelos ou cílios, os centríolos dão origem aos corpos basais, que são responsáveis pela organização dessas estruturas.',
+                color: '#ffcc00',
+                size: 50,
+                facts: [
+                    'Participa da divisão celular',
+                    'Forma o fuso mitótico',
+                    'Origina cílios e flagelos',
+                    'É composto por microtúbulos'
+                ]
+            },
+            {
+                id: 'vacuole',
+                name: 'Vacúolo',
+                description: 'Os vacúolos são grandes vesículas membranosas encontradas principalmente em células vegetais. Eles armazenam água, íons, nutrientes e produtos de excreção. Em células vegetais, o vacúolo central exerce pressão de turgescência, que ajuda a manter a rigidez da célula e da planta. Em células animais, os vacúolos são menores e mais numerosos.',
+                color: '#4a90e2',
+                size: 110,
+                facts: [
+                    'Armazena água, íons e nutrientes',
+                    'Mantém a pressão de turgescência em plantas',
+                    'Pode conter pigmentos',
+                    'Participa do controle do pH celular'
+                ]
+            },
+            {
+                id: 'chloroplast',
+                name: 'Cloroplasto',
+                description: 'Os cloroplastos são organelas exclusivas de células vegetais e de algas, responsáveis pela fotossíntese. Eles contêm clorofila, um pigmento verde que captura a energia luminosa. Assim como as mitocôndrias, os cloroplastos possuem seu próprio DNA e se acredita que tenham evoluído de cianobactérias através de endossimbiose.',
+                color: '#00b894',
+                size: 100,
+                facts: [
+                    'Realiza a fotossíntese',
+                    'Contém clorofila',
+                    'Possui DNA próprio',
+                    'É encontrado apenas em plantas e algas'
+                ]
+            },
+            {
+                id: 'peroxisome',
+                name: 'Peroxissomo',
+                description: 'Os peroxissomos são pequenas vesículas membranosas que contêm enzimas oxidativas. Eles estão envolvidos na oxidação de ácidos graxos e na detoxificação de substâncias tóxicas, como o álcool. Durante essas reações, produz-se peróxido de hidrogênio (H₂O₂), que é depois decomposto pela catalase, outra enzima presente nos peroxissomos.',
+                color: '#e17055',
+                size: 45,
+                facts: [
+                    'Desintoxica a célula',
+                    'Oxida ácidos graxos',
+                    'Produz e decompõe peróxido de hidrogênio',
+                    'Participa da síntese de colesterol'
+                ]
+            }
+        ];
+
+        // Estado do jogo
+        const gameState = {
+            discoveredOrganelles: [],
+            quizScore: 0,
+            knowledgeLevel: 0,
+            currentQuiz: null,
+            quizAnswers: 0,
+            totalQuizQuestions: 0
+        };
+
+        // Perguntas do quiz
+        const quizQuestions = [
+            {
+                question: "Qual organela é conhecida como a 'usina de energia' da célula?",
+                options: ["Núcleo", "Mitocôndria", "Complexo de Golgi", "Retículo Endoplasmático"],
+                correct: 1
+            },
+            {
+                question: "Onde é armazenado o DNA na célula eucariótica?",
+                options: ["Mitocôndria", "Ribossomo", "Núcleo", "Complexo de Golgi"],
+                correct: 2
+            },
+            {
+                question: "Qual organela é responsável pela síntese de proteínas?",
+                options: ["Lisossomo", "Ribossomo", "Vacúolo", "Peroxissomo"],
+                correct: 1
+            },
+            {
+                question: "Qual organela modifica, armazena e distribui proteínas e lipídios?",
+                options: ["Mitocôndria", "Retículo Endoplasmático", "Complexo de Golgi", "Núcleo"],
+                correct: 2
+            },
+            {
+                question: "Qual organela contém enzimas digestivas para quebrar macromoléculas?",
+                options: ["Ribossomo", "Lisossomo", "Peroxissomo", "Vacúolo"],
+                correct: 1
+            },
+            {
+                question: "Qual organela é responsável pela fotossíntese em células vegetais?",
+                options: ["Mitocôndria", "Cloroplasto", "Vacúolo", "Peroxissomo"],
+                correct: 1
+            },
+            {
+                question: "Qual organela está envolvida na detoxificação de substâncias como o álcool?",
+                options: ["Complexo de Golgi", "Peroxissomo", "Ribossomo", "Núcleo"],
+                correct: 1
+            },
+            {
+                question: "Qual organela armazena água, íons e nutrientes em células vegetais?",
+                options: ["Vacúolo", "Lisossomo", "Mitocôndria", "Retículo Endoplasmático"],
+                correct: 0
+            },
+            {
+                question: "Qual organela participa da organização do fuso mitótico durante a divisão celular?",
+                options: ["Centríolo", "Ribossomo", "Complexo de Golgi", "Peroxissomo"],
+                correct: 0
+            },
+            {
+                question: "Qual organela possui ribossomos aderidos à sua superfície?",
+                options: ["Retículo Endoplasmático Rugoso", "Retículo Endoplasmático Liso", "Complexo de Golgi", "Mitocôndria"],
+                correct: 0
+            }
+        ];
+
+        // Inicialização do jogo
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeGame();
+            setupEventListeners();
+        });
+
+        function initializeGame() {
+            createOrganelles();
+            updateOrganelleList();
+            updateStats();
+        }
+
+        function createOrganelles() {
+            const cellCanvas = document.getElementById('cellCanvas');
+            
+            // Limpar canvas
+            cellCanvas.innerHTML = '';
+            
+            // Criar organelas em posições aleatórias
+            organellesData.forEach(organelle => {
+                const organelleElement = document.createElement('div');
+                organelleElement.className = `organelle ${organelle.id}`;
+                organelleElement.id = organelle.id;
+                organelleElement.textContent = organelle.name.substring(0, 3);
+                
+                // Posicionamento aleatório, evitando sobreposição
+                let x, y;
+                let overlapping = true;
+                let attempts = 0;
+                
+                while (overlapping && attempts < 100) {
+                    x = Math.random() * (cellCanvas.offsetWidth - organelle.size);
+                    y = Math.random() * (cellCanvas.offsetHeight - organelle.size);
+                    
+                    overlapping = checkOverlap(x, y, organelle.size);
+                    attempts++;
+                }
+                
+                organelleElement.style.left = `${x}px`;
+                organelleElement.style.top = `${y}px`;
+                organelleElement.style.width = `${organelle.size}px`;
+                organelleElement.style.height = organelle.id === 'mitochondria' ? `${organelle.size/2}px` : `${organelle.size}px`;
+                
+                cellCanvas.appendChild(organelleElement);
+            });
+        }
+
+        function checkOverlap(x, y, size) {
+            const organelles = document.querySelectorAll('.organelle');
+            for (let organelle of organelles) {
+                const rect = organelle.getBoundingClientRect();
+                const canvasRect = document.getElementById('cellCanvas').getBoundingClientRect();
+                
+                const orgX = rect.left - canvasRect.left;
+                const orgY = rect.top - canvasRect.top;
+                const orgWidth = organelle.offsetWidth;
+                const orgHeight = organelle.offsetHeight;
+                
+                // Verificar se há sobreposição
+                if (x < orgX + orgWidth && x + size > orgX && y < orgY + orgHeight && y + size > orgY) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function setupEventListeners() {
+            // Event listeners para organelas
+            document.querySelectorAll('.organelle').forEach(organelle => {
+                organelle.addEventListener('click', function() {
+                    const organelleData = organellesData.find(o => o.id === this.id);
+                    showOrganelleInfo(organelleData);
+                    
+                    // Marcar como descoberta se ainda não foi
+                    if (!gameState.discoveredOrganelles.includes(this.id)) {
+                        gameState.discoveredOrganelles.push(this.id);
+                        updateOrganelleList();
+                        updateStats();
+                        
+                        // Verificar se todas as organelas foram descobertas
+                        if (gameState.discoveredOrganelles.length === organellesData.length) {
+                            showVictoryModal();
+                        }
+                    }
+                });
+            });
+
+            // Event listeners para botões
+            document.getElementById('resetBtn').addEventListener('click', function() {
+                createOrganelles();
+                setupEventListeners(); // Reaplicar event listeners às novas organelas
+            });
+
+            document.getElementById('hintBtn').addEventListener('click', function() {
+                // Encontrar uma organela não descoberta
+                const undiscovered = organellesData.filter(o => !gameState.discoveredOrganelles.includes(o.id));
+                if (undiscovered.length > 0) {
+                    const randomOrganelle = undiscovered[Math.floor(Math.random() * undiscovered.length)];
+                    const organelleElement = document.getElementById(randomOrganelle.id);
+                    
+                    // Piscar a organela
+                    organelleElement.style.boxShadow = '0 0 20px yellow';
+                    setTimeout(() => {
+                        organelleElement.style.boxShadow = '';
+                    }, 1000);
+                } else {
+                    alert('Você já descobriu todas as organelas!');
+                }
+            });
+
+            document.getElementById('quizBtn').addEventListener('click', function() {
+                startQuiz();
+            });
+
+            // Event listeners para modais
+            document.getElementById('closeVictoryModal').addEventListener('click', function() {
+                document.getElementById('victoryModal').style.display = 'none';
+            });
+
+            document.getElementById('closeOrganelleModal').addEventListener('click', function() {
+                document.getElementById('organelleModal').style.display = 'none';
+            });
+
+            // Fechar modal ao clicar fora
+            window.addEventListener('click', function(event) {
+                const victoryModal = document.getElementById('victoryModal');
+                const organelleModal = document.getElementById('organelleModal');
+                
+                if (event.target === victoryModal) {
+                    victoryModal.style.display = 'none';
+                }
+                if (event.target === organelleModal) {
+                    organelleModal.style.display = 'none';
+                }
+            });
+        }
+
+        function showOrganelleInfo(organelleData) {
+            const infoContent = document.getElementById('infoContent');
+            let factsHTML = '';
+            
+            organelleData.facts.forEach(fact => {
+                factsHTML += `<li>${fact}</li>`;
+            });
+            
+            infoContent.innerHTML = `
+                <h3>${organelleData.name}</h3>
+                <p>${organelleData.description}</p>
+                <h4>Curiosidades:</h4>
+                <ul>${factsHTML}</ul>
+            `;
+            
+            // Mostrar modal com informações detalhadas
+            document.getElementById('organelleModalTitle').textContent = organelleData.name;
+            document.getElementById('organelleModalDescription').textContent = organelleData.description;
+            document.getElementById('organelleModal').style.display = 'flex';
+        }
+
+        function updateOrganelleList() {
+            const organelleList = document.getElementById('organelleList');
+            organelleList.innerHTML = '';
+            
+            organellesData.forEach(organelle => {
+                const isDiscovered = gameState.discoveredOrganelles.includes(organelle.id);
+                const organelleItem = document.createElement('div');
+                organelleItem.className = `organelle-item ${isDiscovered ? 'discovered' : ''}`;
+                organelleItem.textContent = organelle.name;
+                organelleItem.addEventListener('click', function() {
+                    if (isDiscovered) {
+                        showOrganelleInfo(organelle);
+                    } else {
+                        alert('Você ainda não descobriu esta organela! Clique nela na célula para aprender sobre ela.');
+                    }
+                });
+                
+                organelleList.appendChild(organelleItem);
+            });
+        }
+
+        function updateStats() {
+            const discoveredCount = document.getElementById('discoveredCount');
+            const quizScore = document.getElementById('quizScore');
+            const knowledgeLevel = document.getElementById('knowledgeLevel');
+            const progressBar = document.getElementById('progressBar');
+            
+            discoveredCount.textContent = gameState.discoveredOrganelles.length;
+            quizScore.textContent = gameState.quizScore;
+            
+            // Calcular nível de conhecimento
+            const discoveryPercentage = (gameState.discoveredOrganelles.length / organellesData.length) * 50;
+            const quizPercentage = (gameState.quizScore / 10) * 50;
+            gameState.knowledgeLevel = Math.min(discoveryPercentage + quizPercentage, 100);
+            
+            knowledgeLevel.textContent = `${Math.round(gameState.knowledgeLevel)}%`;
+            progressBar.style.width = `${gameState.knowledgeLevel}%`;
+        }
+
+        function startQuiz() {
+            // Embaralhar perguntas
+            const shuffledQuestions = [...quizQuestions].sort(() => Math.random() - 0.5);
+            gameState.currentQuiz = shuffledQuestions.slice(0, 5); // Usar apenas 5 perguntas
+            gameState.quizAnswers = 0;
+            gameState.totalQuizQuestions = gameState.currentQuiz.length;
+            
+            // Mostrar container do quiz
+            document.getElementById('quizContainer').style.display = 'block';
+            
+            // Atualizar contadores
+            document.getElementById('currentQuestion').textContent = '1';
+            document.getElementById('totalQuestions').textContent = gameState.totalQuizQuestions;
+            document.getElementById('correctAnswers').textContent = '0';
+            
+            // Mostrar primeira pergunta
+            showQuizQuestion(0);
+        }
+
+        function showQuizQuestion(index) {
+            if (index >= gameState.currentQuiz.length) {
+                endQuiz();
+                return;
+            }
+            
+            const question = gameState.currentQuiz[index];
+            const quizQuestion = document.getElementById('quizQuestion');
+            const quizOptions = document.getElementById('quizOptions');
+            
+            // Atualizar contador
+            document.getElementById('currentQuestion').textContent = index + 1;
+            
+            // Mostrar pergunta
+            quizQuestion.textContent = question.question;
+            
+            // Mostrar opções
+            quizOptions.innerHTML = '';
+            question.options.forEach((option, i) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'quiz-option';
+                optionElement.textContent = option;
+                optionElement.addEventListener('click', function() {
+                    checkAnswer(i, question.correct, index);
+                });
+                quizOptions.appendChild(optionElement);
+            });
+        }
+
+        function checkAnswer(selected, correct, questionIndex) {
+            const options = document.querySelectorAll('.quiz-option');
+            
+            // Destacar resposta correta e incorreta
+            options.forEach((option, i) => {
+                if (i === correct) {
+                    option.style.background = 'rgba(0, 200, 0, 0.5)';
+                } else if (i === selected && i !== correct) {
+                    option.style.background = 'rgba(200, 0, 0, 0.5)';
+                }
+                option.style.pointerEvents = 'none'; // Desabilitar cliques adicionais
+            });
+            
+            // Atualizar pontuação
+            if (selected === correct) {
+                gameState.quizAnswers++;
+                document.getElementById('correctAnswers').textContent = gameState.quizAnswers;
+            }
+            
+            // Próxima pergunta após um breve delay
+            setTimeout(() => {
+                showQuizQuestion(questionIndex + 1);
+            }, 2000);
+        }
+
+        function endQuiz() {
+            // Esconder container do quiz
+            document.getElementById('quizContainer').style.display = 'none';
+            
+            // Atualizar pontuação total
+            gameState.quizScore += gameState.quizAnswers;
+            
+            // Mostrar resultado
+            alert(`Quiz concluído! Você acertou ${gameState.quizAnswers} de ${gameState.totalQuizQuestions} perguntas.`);
+            
+            // Atualizar estatísticas
+            updateStats();
+        }
+
+        function showVictoryModal() {
+            document.getElementById('finalScore').textContent = gameState.quizScore + gameState.discoveredOrganelles.length * 10;
+            document.getElementById('victoryModal').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
