@@ -706,6 +706,84 @@
             transform: scale(1.05);
         }
 
+        /* Nova seção de desenvolvedores */
+        .developers-section {
+            background: var(--dark-bg);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 40px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .developers-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(to right, var(--accent-orange), var(--primary-yellow), var(--secondary-green));
+        }
+
+        .developers-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .developers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .developer-card {
+            background: var(--light-bg);
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .developer-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .developer-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--accent-orange), var(--primary-yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .developer-name {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .developer-role {
+            font-size: 1rem;
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+
+        .developer-class {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 2.5rem;
@@ -724,6 +802,10 @@
             }
             
             .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .developers-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -818,6 +900,39 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Nova seção de desenvolvedores -->
+        <div class="developers-section fade-in">
+            <h2 class="developers-title"><i class="fas fa-code"></i> Desenvolvido por</h2>
+            <p>Este jogo educativo foi criado com dedicação pelos seguintes desenvolvedores:</p>
+            <div class="developers-grid">
+                <div class="developer-card">
+                    <div class="developer-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="developer-name">Vítor Hugo</div>
+                    <div class="developer-role">Desenvolvedor Principal</div>
+                    <div class="developer-class">Turma 211</div>
+                </div>
+                <div class="developer-card">
+                    <div class="developer-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="developer-name">Gabrielly</div>
+                    <div class="developer-role">Pesquisadora</div>
+                    <div class="developer-class">Turma 211</div>
+                </div>
+                <div class="developer-card">
+                    <div class="developer-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="developer-name">Davi</div>
+                    <div class="developer-role">Testador</div>
+                    <div class="developer-class">Turma 211</div>
+                </div>
+            </div>
+            <p style="margin-top: 20px; font-style: italic;">Projeto educacional desenvolvido para o estudo de Citologia</p>
         </div>
 
         <div class="quiz-container" id="quizContainer">
